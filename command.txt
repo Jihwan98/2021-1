@@ -1,0 +1,23 @@
+*Root Folder 연결
+
+git init
+
+git remote add origin repository address
+
+
+
+*pull
+
+git pull origin master
+
+
+*push
+
+git status
+
+git add .
+
+git commit -m "massage"
+
+git push origin master
+
