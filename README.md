@@ -17,7 +17,6 @@
 줄바꿈으로 쓰고자 할 때
 ```
 
-[Data_Science 폴더로 이동](./Data_Science)
 
 # Colab 단축키
 * 주피터 노트북 단축키에 Ctrl/Cmd + M 이 앞에 붙었다고 생각하면 편하다
