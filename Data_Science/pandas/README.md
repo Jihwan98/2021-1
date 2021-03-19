@@ -831,3 +831,305 @@
   ```
   
   [실행코드보기](./built-in_functions.ipynb)
+
+
+## Groupby1
+  ### Groupby
+  - SQL groupby 명령어와 같음
+  - split -> apply -> combine
+  - 과정을 거쳐서 연산함
+  - `df.groupby("Team")["Points']/sum`
+  - ("Team") - 묶음의 기준이 되는 column
+  - ["Points"] - 적용받는 column
+  - .sum() - 적용받는 연산
+  ```python
+  ipl_data = {'Team': ['Riders', 'Riders', 'Devils', 'Devils', 'Kings',
+         'kings', 'Kings', 'Kings', 'Riders', 'Royals', 'Royals', 'Riders'],
+         'Rank': [1, 2, 2, 3, 3,4 ,1 ,1,2 , 4,1,2],
+         'Year': [2014,2015,2014,2015,2014,2015,2016,2017,2016,2014,2015,2017],
+         'Points':[876,789,863,673,741,812,756,788,694,701,804,690]}
+
+  df = pd.DataFrame(ipl_data)
+  df
+  ```
+  ```
+      Team	Rank	Year	Points
+  0	Riders	1	2014	876
+  1	Riders	2	2015	789
+  2	Devils	2	2014	863
+  3	Devils	3	2015	673
+  4	Kings	3	2014	741
+  5	kings	4	2015	812
+  6	Kings	1	2016	756
+  7	Kings	1	2017	788
+  8	Riders	2	2016	694
+  9	Royals	4	2014	701
+  10	Royals	1	2015	804
+  11	Riders	2	2017	690
+  ```
+  ```python
+  df.groupby("Team")["Points"].sum()
+  ```
+  ```
+    Team
+  Devils    1536
+  Kings     2285
+  Riders    3049
+  Royals    1505
+  kings      812
+  Name: Points, dtype: int64
+  ```
+  - 한 개 이상의 column을 묶을 수 있음
+  ```python
+  df.groupby(["Team","Year"])["Points"].sum()
+  ```
+  ```
+    Team    Year
+  Devils  2014    863
+          2015    673
+  Kings   2014    741
+          2016    756
+          2017    788
+  Riders  2014    876
+          2015    789
+          2016    694
+          2017    690
+  Royals  2014    701
+          2015    804
+  kings   2015    812
+  Name: Points, dtype: int64
+  ```
+  ### Hierarchical index
+  - Groupby 명령의 결과물도 결국은 dataframe
+  - 두 개의 column 으로 groupby를 할 경우, index가 두 개 생성
+  - `h_index.index`
+  #### Hierarchical index - unstack()
+  - Group으로 묶여진 데이터를 matrix 형태로 전환해줌
+  - `h_index.unstack()`
+  #### Hierarchical index - swaplevel
+  - index level을 변경할 수 있음
+  - `h_index.swaplevel()`
+  #### Hierarchical index - operations
+  - index level 을 기준으로 기본 연산 수행 가능
+  - `h_index.sum(level=0)`
+  - `h_index.sum(level=1)`
+  ```python
+  h_index = df.groupby(["Team","Year"])["Points"].sum()
+  h_index
+  ```
+  ```
+    Team    Year
+  Devils  2014    863
+          2015    673
+  Kings   2014    741
+          2016    756
+          2017    788
+  Riders  2014    876
+          2015    789
+          2016    694
+          2017    690
+  Royals  2014    701
+          2015    804
+  kings   2015    812
+  Name: Points, dtype: int64
+  ```
+  ```python
+  h_index.unstack()    # h_index.unstack().fillna(0)  NaN 값 0
+  ```
+  ```
+    Year	2014	2015	2016	2017
+  Team				
+  Devils	863.0	673.0	NaN	NaN
+  Kings	741.0	NaN	756.0	788.0
+  Riders	876.0	789.0	694.0	690.0
+  Royals	701.0	804.0	NaN	NaN
+  kings	NaN	812.0	NaN	NaN
+  ```
+  
+  [실행코드보기](./groupby1.ipynb)
+
+
+## Groupby2
+  ### Grouped
+  - Groupby에 의해 split 된 상태를 추출 가능함
+  ```python
+  grouped = df.groupby("Team")
+  for name, group in grouped:
+    print(name)
+    print(group)
+  ```
+  ```
+    Devils
+       Team  Rank  Year  Points
+  2  Devils     2  2014     863
+  3  Devils     3  2015     673
+  Kings
+      Team  Rank  Year  Points
+  4  Kings     3  2014     741
+  6  Kings     1  2016     756
+  7  Kings     1  2017     788
+  Riders
+        Team  Rank  Year  Points
+  0   Riders     1  2014     876
+  1   Riders     2  2015     789
+  8   Riders     2  2016     694
+  11  Riders     2  2017     690
+  Royals
+        Team  Rank  Year  Points
+  9   Royals     4  2014     701
+  10  Royals     1  2015     804
+  kings
+      Team  Rank  Year  Points
+  5  kings     4  2015     812
+  ```
+  - 특정 key 값을 가진 그룹의 정보만 추출 가능
+  ```python
+  grouped.get_group("Devils")
+  ```
+  ```
+    Team	Rank	Year	Points
+  2	Devils	2	2014	863
+  3	Devils	3	2015	673
+  ```
+  - 추출된 group 정보에는 세 가지 유형의 apply 가 가능함
+  - Aggregation : 요약된 통계정보를 추출해 줌
+  - Transformation : 해당 정보를 변환해줌
+  - Filtration : 특정 정보를 제거하여 보여주는 필터링 기능
+  #### Aggregation
+  ```python
+  grouped.agg(sum)
+  ```
+  ```
+      Rank	Year	Points
+  Team			
+  Devils	5	4029	1536
+  Kings	5	6047	2285
+  Riders	7	8062	3049
+  Royals	5	4029	1505
+  kings	4	2015	812
+  ```
+  ```python
+  grouped.agg(np.mean)
+  ```
+  ```
+      Rank	Year	Points
+  Team			
+  Devils	2.500000	2014.500000	768.000000
+  Kings	1.666667	2015.666667	761.666667
+  Riders	1.750000	2015.500000	762.250000
+  Royals	2.500000	2014.500000	752.500000
+  kings	4.000000	2015.000000	812.000000
+  ```
+  - 특정 column 에 여러개의 function을 Apply 할 수도 있음
+  ```python
+  grouped['Points'].agg([np.sum,np.mean,np.std])
+  ```
+  ```
+      sum	mean	std
+  Team			
+  Devils	1536	768.000000	134.350288
+  Kings	2285	761.666667	24.006943
+  Riders	3049	762.250000	88.567771
+  Royals	1505	752.500000	72.831998
+  kings	812	812.000000	NaN
+  ```
+  
+  #### Transformation
+  - Aggregation 과 달리 key 값 별로 요약된 정보가 아님
+  - 개별 데이터의 변환을 지원함
+  ```python
+  score = lambda x: (x.max())
+  grouped.transform(score)
+  ```
+  ```python
+  score = lambda x: (x - x.mean()) / x.std()
+  grouped.transform(score)
+  ```
+  #### Filter
+  - 특정 조건으로 데이터를 검색할 때 사용
+  - `df.groupby('Team').filter(lambda x: len(x) >= 3)`
+  - filter 안에는 boolean 조건이 존재해야함
+  - len(x)는 grouped 된 dataframe 개수
+  - `df.groupby('Team').filter(lambda x: x["Rank"].sum() >= 2)`
+  - `df.groupby('Team').filter(lambda x: x["Rank"].mean() >= 1)`
+
+  [실행코드보기](./groupby2.ipynb)
+
+
+## Pivot table & Crosstab
+  ### Pivot Table
+  - 우리가 Excel 에서 보던 그것!
+  - index 축은 gropuby와 동일함
+  - column 에 추가로 labelling 값을 추가하여, Value에 numeric type 값을 aggregation 하는 형태
+  ```python
+  df_phone.pivot_table(['duration'], index=[df_phone.month, df_phone.item],
+                    columns=df_phone.network, aggfunc="sum", fill_value=0)
+  ```
+  
+  ### Crosstab
+  - 특히 두 칼럼에 교차 빈도, 비율, 덧셈 등을 구할 때 사용
+  - Pivot table 의 특수한 형태
+  - User-Item Rating Matrix 등을 만들 때 사용 가능함
+  ```python
+  pd.crosstab(index=df_movie.critic, columns=df_movie.title, values=df_movie.rating,
+           aggfunc="first").fillna(0)
+  ```
+  - gropuby로도 만들 수 있음!
+  ```python
+  df_movie.groupby(['critic','title']).agg({"rating":"sum"}).unstack().fillna(0)
+  ```
+  
+  [실행코드보기](./pivot_table&crosstab.ipynb)
+
+
+## Merge & Concat
+  ### Merge
+  - SQL 에서 많이 사용하는 Merge 와 같은 기능
+  - 두 개의 데이터를 하나로 합침
+  - `pd.merge(df_a, df_b, on='subject_id')`
+  - 두 dataframe의 column 이름이 다를 때
+  - `pd.merge(df_a, df_b, left_on='subject_id', right_on='subject_id')`
+  #### join method
+  - left - 왼쪽 정보 다 나옴
+  - `pd.merge(df_a, df_b, on='subject_id', how='left')`
+  - right - 오른쪽 정보 다 나옴
+  - `pd.merge(df_a, df_b, on='subject_id', how='right')`
+  - outer - 양쪽
+  - `pd.merge(df_a, df_b, on='subject_id', how='outer')`
+  - inner - 둘 다 있을 경우
+  - `pd.merge(df_a, df_b, on='subject_id', how='inner')`
+
+  ### index based join
+  - index 번호를 기준으로 join
+  - `pd.merge(df_a, df_b, right_index=True, left_index=True)`
+
+  ### Concat
+  - 같은 형태의 데이터를 붙이는 연산작업
+  - 기본적으로 세로로 합쳐짐
+  ```python
+  df_new = pd.concat([df_a, df_b])    # == df_a.append(df_b)
+  df_new.reset_index()   
+  ```
+  ```python
+  df_new = pd.concat([df_a, df_b], axis=1)   # 가로로 붙이기
+  df_new.reset_index()
+  ```
+  
+  [실행코드보기](./merge&concat.ipynb)
+  
+
+## Database connection & Persistance
+  ### Database connection
+  - Data loading 시 db connection 기능을 제공함
+  
+  ### XLS persistence
+  - DataFrame의 엑셀 추출 코드
+  - Xls 엔진으로 openpyxls 또는 XlsxWrite 사용
+  
+  ### Pickle persistence
+  - 가장 일반적인 python 파일 persistence
+  - to_pickle, read_pickle 함수 이용
+  - `df_routes.to_pickle("./data/df_routes.pickle")`
+  - `df_routes_pickle = pd.read_pickle("./data/df_routes.pickle")`
+
+  [실행코드보기](./database_connection&persistence.ipynb)
