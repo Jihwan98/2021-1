@@ -2,3 +2,5 @@
 ## [Numpy](./numpy)
 
 ## [Pandas](./pandas)
+
+## [Visualization](./visualization)

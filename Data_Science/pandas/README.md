@@ -1,7 +1,14 @@
 # About Pandas
+- 구조화된 데이터의 처리를 지원하는 Python 라이브러리
+- panel data -> pandas
+- 고성능 array 계산 라이브러리인 numpy와 통합하여, 강력한 "스프레드시트"처리 기능을 제공
+- 인덱싱, 연산용 함수, 전처리 함수 등을 제공함
+- 데이터 처리 및 통계 분석을 위해 사용
+
+
 ## Series
   - index 가 추가된 numpy이다
-  ```
+  ```python
   from pandas import Series, DataFrame
   import pandas as pd
   
@@ -18,7 +25,7 @@
   dtype: int64
   ```
   
-  ```
+  ```python
   list_data = [1,2,3,4,5]
   list_name = ["a","b","c","d","e"]
   example_obj = Series(data = list_data, index = list_name)
@@ -33,7 +40,7 @@
   dtype: int64
   ```
   
-  ```
+  ```python
   dic_data = {"a":1 , "b":2, "c":3, "d":4, "e":5}
   example_obj = Series(dic_data, dtype=np.float32, name="example_data")
   example_obj
@@ -47,11 +54,11 @@
   Name: example_data, dtype: float32
   ```
   
-  ```
+  ```python
   example_obj["a"]
   ```
   `1.0`
-  ```
+  ```python
   example_obj["a"] = 3.2
   example_obj  
   ```
@@ -64,15 +71,15 @@
   Name: example_data, dtype: float32
   ```
   
-  ```
+  ```python
   example_obj.values
   ```
   `array([3.2, 2. , 3. , 4. , 5. ], dtype=float32)`
-  ```
+  ```python
   example_obj.index
   ```
   `Index(['a', 'b', 'c', 'd', 'e'], dtype='object')`
-  ```
+  ```python
   example_obj.name = "number"
   example_obj.index.name = "alphabet"
   example_obj
@@ -92,7 +99,7 @@
   
 ## DataFrame
   - DataFrame 생성
-  ```
+  ```python
   raw_data = {'first_name': ['Jason', 'Molly', 'Tina', 'Jake', 'Amy'],
         'last_name': ['Miller', 'Jacobson', 'Ali', 'Milner', 'Cooze'],
         'age': [42, 52, 36, 24, 73],
@@ -109,7 +116,7 @@
   4	Amy	Cooze	73	Boston
   ```
   - 원하는 column 만 추출
-  ```
+  ```python
   DataFrame(raw_data, columns = ["age", "city"])
   ```
   ```
@@ -121,7 +128,7 @@
   4	73	Boston
   ```
   - column 추가
-  ```
+  ```python
   DataFrame(raw_data, columns = ["first_name","last_name","age", "city", "debt"])
   ```
   ```
@@ -133,7 +140,7 @@
   4	Amy	Cooze	73	Boston	NaN
   ```
   - column 선택 후 series 추출
-  ```
+  ```python
   df = DataFrame(raw_data, columns = ["first_name", "last_name", "age", "city", "debt"])
   df.first_name    # == df["first_name"]
   ```
@@ -147,7 +154,7 @@
   ```
   - loc - index location
   - iloc - index position
-  ```
+  ```python
   df.loc[1]
   ```
   ```
@@ -158,7 +165,7 @@
   debt                NaN
   Name: 1, dtype: object
   ```
-  ```
+  ```python
   df["age"].iloc[1:]
   ```
   ```
@@ -169,7 +176,7 @@
   Name: age, dtype: int64
   ```
   - loc은 index 이름, iloc은 index number
-  ```
+  ```python
   s = pd.Series(np.nan, index=[49,48,47,46,45, 1, 2, 3, 4, 5])
   s.loc[:3]
   ```
@@ -184,7 +191,7 @@
   3    NaN
   dtype: float64
   ```
-  ```
+  ```python
   s.iloc[:3]
   ```
   ```
@@ -194,7 +201,7 @@
   dtype: float64
   ```
   - column에 새로운 데이터 할당
-  ```
+  ```python
   df.debt = df.age > 40
   df
   ```
@@ -211,7 +218,7 @@
   - csv 변환 `df.to_csv()`
   - column 삭제 `del df["debt"]`
   
-  ```
+  ```python
   pop = {'Nevada': {2001: 2.4, 2002: 2.9},
  'Ohio': {2000: 1.5, 2001: 1.7, 2002: 3.6}}
 
@@ -228,7 +235,7 @@
 
 ## Selection & Drop
   ### Selection with column names
-  ```
+  ```python
   df = pd.read_excel("./data/excel-comp-data.xlsx")
   df.head()
   ```
@@ -240,7 +247,7 @@
   3	109996	D'Amore, Gleichner and Bode	155 Fadel Crescent Apt. 144	Hyattburgh	Maine	46021	45000	120000	10000
   4	121213	Bauch-Goldner	7274 Marissa Common	Shanahanchester	California	49681	162000	120000	35000
   ```
-  ```
+  ```python
   df["account"].head(3)    # df[["account","name","street"]].head() 여러개의 columns 추출 가능
   ```
   ```
@@ -249,7 +256,7 @@
   2    648336
   Name: account, dtype: int64
   ```
-  ```
+  ```python
   df[:3]    # df["account"][:3] 원하는 columns 에서만도 가능
   ```
   ```
@@ -260,7 +267,7 @@
   ```
   
   ### Series selection
-  ```
+  ```python
   account_series = df["account"]
   account_series[:3]
   ```
@@ -270,7 +277,7 @@
   2    648336
   Name: account, dtype: int64
   ```
-  ```
+  ```python
   account_series[[1,5,3]]
   ```
   ```
@@ -279,7 +286,7 @@
   3    109996
   Name: account, dtype: int64
   ```
-  ```
+  ```python
   account_series[account_series>250000]
   ```
   ```
@@ -291,7 +298,7 @@
   ```
   
   ### index 변경
-  ```
+  ```python
   df.index = df["account"]
   del df["account"]
   df.head()
@@ -307,7 +314,7 @@
   ```
   
   ### Basic, loc, iloc selection
-  ```
+  ```python
   df[["name","street"]][:2]    # Column 과 index number
   df.loc[[211829,320563],["name","street"]]    # Column 과 index name
   df.iloc[:2,:2]    # Column number 와 index number
@@ -318,7 +325,7 @@
   211829	Kerluke, Koepp and Hilpert	34456 Sean Highway
   320563	Walter-Trantow	1311 Alvis Tunnel
   ```
-  ```
+  ```python
   df[["name","street"]].iloc[:5]
   ```
   ```
@@ -332,14 +339,17 @@
   ```
   
   ### index 재설정
-  ```
+  ```python
   df.index = list(range(0,15))
   ```
-  ### Data Drop
+  ```python
+  df.reset_index()
   ```
+  ### Data Drop
+  ```python
   df.drop([0,1,2,3])
   ```
-  ```
+  ```python
   df.drop("city", axis=1)    # df.drop(["city","state"], axis=1) 여러개 없애기
   ```
   
@@ -838,7 +848,7 @@
   - SQL groupby 명령어와 같음
   - split -> apply -> combine
   - 과정을 거쳐서 연산함
-  - `df.groupby("Team")["Points']/sum`
+  - `df.groupby("Team")["Points"].sum()`
   - ("Team") - 묶음의 기준이 되는 column
   - ["Points"] - 적용받는 column
   - .sum() - 적용받는 연산
