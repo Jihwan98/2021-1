@@ -271,3 +271,100 @@
  - pointplot 등등
 
   [실행코드보기](./seaborn.ipynb)
+  
+  
+## Time Series Data
+  ### datetime index
+  - python에서 datetime 모듈을 활용
+  ```python
+  from datetime import datetime
+  date_str = '09-19-2018'
+  date_object = datetime.strptime(date_str, '%m-%d-%Y').date()
+  
+  date_str = '2018/09/19'
+  date_object = datetime.strptime(date_str, '%Y/%m/%d').date()
+  
+  date_str = '180919'
+  date_object = datetime.strptime(date_str, '%y%m%d').date()
+  ```
+  ```python
+  date_object.day         # 19
+  date_object.month       # 9
+  date_object.weekday()   # 2
+  ```
+  - 시,분,초 단위도 역시 가능.
+  - datetime 차이도 구할 수 있음. (timedelta type으로 나옴)
+  
+  ### datetime index 만들기
+  - 대부분의 데이터는 str 형태로 되어있음 -> 호출 후 datetime index로 변환이 필요함
+  - ```df['datetime'] = pd.to_datetime(df['date'])
+
+  ### Time resampling
+  - 시간 기준 데이터로 Aggregation
+  - Groupby와 유사 -> 훨씬 간단하고 유용
+  ```python
+  df["count"].resample('Q').sum()   # 분기별
+  df["count"].resample('M').sum()   # 달별
+  df["count"].resample('D').sum()   # 일별
+  df["count"].resample('W').sum()   # 주별
+  ```
+  - pd.date_range()
+  - time_delta_range()
+  - period_range()
+  - interval_range()
+  - 등등
+  ```python
+  period = pd.date_range(start='2011-01-01', end='2011-05-31', freq='M')
+  df["count"].resample('M').sum()[period]
+  
+  period = pd.date_range(start='2011-01-01', period=12, freq='M')
+  df["count"].resample('M').sum()[period]
+  
+  df["count"].resample('M').sum()["2011-01-01":"2012-05-01"]
+  ```
+  - 요일별 데이터 뽑기?
+  ```python
+  df["dayofweek"] = df.index.dayofweek    # dayofyear, weekofyear 등등
+  df.groupby("dayofweek")["count"].mean()
+  ```
+  ### Time shifting
+  - 시간의 차 분석
+  - Pandas 내 Time shifting 기능으로 분석
+  - `shift`
+  ```python
+  monthly_avg = df["count"].resample("M").mean()
+  monthly_avg.shift(periods=2, fill_value=0)
+  ```
+  ```python
+  monthly_avg = df["count"].resample("M").mean()
+  result = []
+  for period in range(1,6):
+    temp_avg = monthly_avg.shift(periods=period, fill_value=0)
+    temp_avg = temp_avg.rename("{}_monthly_shift".format(period))
+    result.append(temp_avg)
+  
+  pd.concat(result, axis=1)
+  ```
+  
+  ### Moving average
+  - 시계열 데이터는 노이즈 발생
+  - 노이즈를 줄이면서 추세보기, 이동평균법
+  - `rolling`
+  ```python
+  day_avg = df["count"].resample("D").mean()
+  day_avg.rolling(window=30).mean().plot()
+  ```
+  ### Cumsum
+  - 시계열 데이터를 window 마다 합침
+  - rolling(window=10).sum()과 다름
+  ```python
+  monthly_avg = df["count"].resample("M").mean()
+  cumsum_avg = df["count"].resample("M").mean().cumsum()
+  monthly_avg = monthly_avg.rename("monthly_avg")
+  cumsum_avg = cumsum_avg.rename("cumsum_avg")
+  df_monthly = pd.concat([monthly_avg, cumsum_avg], axis=1)
+  ax = df_monthly.plot(y="monthly_avg", use_index = True)
+  df_monthly.plot(y="cumsum_avg", secondary_y=True, ax=ax)
+  ```
+  ![image](https://user-images.githubusercontent.com/76936390/115037763-c3986a80-9f09-11eb-95b6-521602b2a9e0.png)
+
