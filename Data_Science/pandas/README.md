@@ -757,7 +757,7 @@
   df.sum(axis=1)    # row 별
   ```
   
-  ### innull
+  ### isnull
   - column 또는 row 값의 NaN(null) 값의 index를 반환함
   ```python
   df.isnull().head()
